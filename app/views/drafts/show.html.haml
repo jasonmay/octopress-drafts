@@ -1,0 +1,50 @@
+.page-header
+  %h1= @draft
+
+#epiceditor
+
+
+.form-actions
+  =link_to "Write", "#", :class => "btn btn-primary", :onclick => "saveToDraftFile();"
+  =link_to t('.back', :default => t("helpers.links.back")), drafts_path, :class => 'btn'
+
+=javascript_include_tag("epiceditor.min.js")
+:javascript
+  var editor = new EpicEditor({
+    container: 'epiceditor',
+    localStorageName: #{"drafts-#{@draft}".to_json},
+    basePath: '/assets/epiceditor/',
+    parser: function(src, opt) {
+      var begin = /^---/;
+      if (begin.test(src)) {
+        src = src.replace(/.+?\n/, '');
+        do { src = src.replace(/.*\n/, ''); } while (src && !begin.test(src));
+        src = src.replace(/.+?\n/, '');
+      }
+      return marked(src, opt);
+    },
+    file: {
+      defaultContent: #{Draft.new(@draft).content.to_json}
+    },
+    theme: {
+      base: #{'themes/base/epiceditor.css'.to_json},
+      preview: #{'themes/preview/github.css'.to_json},
+      editor: #{'themes/editor/epic-dark.css'.to_json},
+    }
+  });
+  editor.load();
+
+  function saveToDraftFile(preview) {
+    jQuery.post(
+      #{draft_save_path(@draft).to_json},
+      {content: editor.exportFile()},
+      function(data) {
+        console.log(data);
+        updatePreviewFrame();
+      }
+    );
+  }
+
+  function updatePreviewFrame() {
+    alert("Update frame here");
+  }
