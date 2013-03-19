@@ -37,14 +37,6 @@
   function saveToDraftFile(preview) {
     jQuery.post(
       #{draft_save_path(@draft).to_json},
-      {content: editor.exportFile()},
-      function(data) {
-        console.log(data);
-        updatePreviewFrame();
-      }
+      {content: editor.exportFile()}
     );
-  }
-
-  function updatePreviewFrame() {
-    alert("Update frame here");
   }
